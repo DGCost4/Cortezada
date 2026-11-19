@@ -18,3 +18,6 @@ referencias/
 cortezada*.zip
 *.bundle
 trabalho_log.txt
+motion/node_modules/
+motion/comps/
+motion/teste/out.mp4

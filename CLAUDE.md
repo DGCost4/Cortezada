@@ -5,6 +5,11 @@ Google Drive: pasta "Cortes Lives" (id 1v1-8naJff6-OJbZSRbw-Y86B9Gv6hqQ5) — 01
 
 **Idioma: responda SEMPRE em português do Brasil.**
 
+**Padrão visual escolhido pelo usuário:** layout `dividido` (streamer em cima, gameplay embaixo — estilo das referências do TikTok)
++ legenda `minimal_destaque` (Open Sans, minúsculas, palavra falada em **roxo neon #B44CFF**, cor do canal). Já são os padrões do `editar.py`.
+Prioridade do usuário: **o que viraliza > edição caprichada** (simples funciona).
+Download de lives: YouTube bloqueia o servidor ("confirm you're not a bot") → usar **link de compartilhamento do Google Drive** (`drive.usercontent.google.com/download?id=ID&export=download&confirm=t`). A ferramenta do Drive só baixa/sobe ≤ 10 MB / ~3 MB.
+
 ## O que este projeto faz
 O usuário manda lives de jogos (vídeo, geralmente compactado em .zip/.rar/.7z).
 O Claude analisa, encontra os momentos com potencial viral, edita em formato vertical

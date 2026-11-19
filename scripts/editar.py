@@ -66,9 +66,9 @@ ESTILOS = {
     "minimal": dict(fonte="Open Sans Semibold", tam=60, contorno=0, sombra=3, borda=1, caixa_cor="&H00000000",
                     destaque=None, pop=False, caixa_alta=False, max_pal=6, max_car=30,
                     tit_fonte="Open Sans Bold", tit_tam=66, tit_contorno=0, minusc=True),
-    # minimalista com a palavra falada em amarelo suave (sem animação)
+    # PADRÃO DO CANAL: minimalista com a palavra falada em roxo neon (cor da logo), sem animação
     "minimal_destaque": dict(fonte="Open Sans Bold", tam=62, contorno=2, sombra=2, borda=1, caixa_cor="&H00000000",
-                             destaque="&H0070E8FF", pop=False, caixa_alta=False, max_pal=5, max_car=26,
+                             destaque="&H00FF4CB4", pop=False, caixa_alta=False, max_pal=5, max_car=26,
                              tit_fonte="Open Sans Bold", tit_tam=66, tit_contorno=2, minusc=True),
     # texto branco em caixinha preta translúcida (estilo legenda de TV / Reels)
     "caixa": dict(fonte="Roboto Medium", tam=54, contorno=12, sombra=0, borda=3, caixa_cor="&H50000000",
@@ -231,14 +231,18 @@ def main():
     ap = argparse.ArgumentParser(description="Renderiza cortes verticais editados.")
     ap.add_argument("cortes_json")
     ap.add_argument("--ids", nargs="*", help="só esses cortes (ex.: c01 c04)")
-    ap.add_argument("--layout", choices=["blur", "cheio", "dividido"], default="blur")
-    ap.add_argument("--estilo", choices=list(ESTILOS), default="impacto", help="estilo da legenda")
+    ap.add_argument("--layout", choices=["blur", "cheio", "dividido"], default="dividido")
+    ap.add_argument("--estilo", choices=list(ESTILOS), default="minimal_destaque", help="estilo da legenda")
+    ap.add_argument("--cor", help="cor do destaque em hex RGB, ex.: 18E6FF (substitui a do estilo)")
     ap.add_argument("--sufixo", default="", help="sufixo no nome do arquivo (para comparar versões)")
     ap.add_argument("--cam", help="layout dividido: posição da câmera do streamer no vídeo original, x:y:largura:altura (px)")
     ap.add_argument("--marca", default="", help='texto da marca d\'água, ex.: "@MeuCanalDeCortes"')
     ap.add_argument("--fps", type=int, default=30)
     a = ap.parse_args()
 
+    if a.cor:
+        r, g, b = a.cor[0:2], a.cor[2:4], a.cor[4:6]
+        ESTILOS[a.estilo]["destaque"] = f"&H00{b}{g}{r}".upper()
     cj = Path(a.cortes_json).resolve()
     dados = json.loads(cj.read_text(encoding="utf-8"))
     transc = json.loads((cj.parent / "transcricao.json").read_text(encoding="utf-8"))

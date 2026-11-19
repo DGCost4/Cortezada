@@ -108,7 +108,12 @@ def transcrever(wav: Path, cache: Path, modelo: str, idioma: str):
     segs, info = m.transcribe(ler_wav(wav), language=idioma, word_timestamps=True, vad_filter=True,
                               condition_on_previous_text=False)
     resultado = {"idioma": info.language, "segmentos": []}
+    recentes = []  # (texto, inicio) — o Whisper às vezes "repete" a mesma frase várias vezes
     for s in segs:
+        chave = sem_acento(s.text.strip())
+        if len(chave) > 6 and any(chave == c and s.start - t0 < 30 for c, t0 in recentes):
+            continue
+        recentes = [(c, t0) for c, t0 in recentes if s.start - t0 < 30] + [(chave, s.start)]
         resultado["segmentos"].append({
             "inicio": round(s.start, 2), "fim": round(s.end, 2), "texto": s.text.strip(),
             "palavras": [{"inicio": round(w.start, 2), "fim": round(w.end, 2), "p": w.word.strip()}

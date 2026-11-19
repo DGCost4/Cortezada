@@ -15,3 +15,5 @@ __pycache__/
 token*.json
 client_secret*.json
 referencias/
+cortezada*.zip
+*.bundle

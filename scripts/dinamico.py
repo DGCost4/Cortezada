@@ -150,11 +150,11 @@ def render_base(video, corte, segs, cam, pico_out, tmp: Path, src_w, src_h):
     gw = int(src_h * 9 / 16) // 2 * 2
     gx = (src_w - gw) // 2
     cx, cy, cw, ch = cam
-    bp, bg = (520, int(520 * ch / cw)), (820, int(820 * ch / cw))  # bolha normal / grande
+    bp, bg = (440, int(440 * ch / cw)), (760, int(760 * ch / cw))  # bolha normal / grande
     borda = 8
     for nome, (bw, bh) in (("p", bp), ("g", bg)):
         mascara_bolha(bw, bh, 36, borda, tmp / f"mask_{nome}.png", tmp / f"borda_{nome}.png")
-    yb = 150
+    yb, xb = 110, 40  # bolha no canto superior esquerdo (cresce a partir do canto)
     filtro = (
         f"[0:v]split=3[g][c1][c2];"
         f"[g]crop={gw}:{src_h}:{gx}:0,scale={W}:{H}:flags=lanczos,setsar=1,"
@@ -162,10 +162,10 @@ def render_base(video, corte, segs, cam, pico_out, tmp: Path, src_w, src_h):
         f"eq=saturation=1.12:contrast=1.04[game];"
         f"[c1]crop={cw}:{ch}:{cx}:{cy},scale={bp[0]}:{bp[1]},format=rgba[cp0];[cp0][2:v]alphamerge[cp];"
         f"[c2]crop={cw}:{ch}:{cx}:{cy},scale={bg[0]}:{bg[1]},format=rgba[cg0];[cg0][3:v]alphamerge[cgb];"
-        f"[game][4:v]overlay=x={(W - bp[0]) // 2 - borda}:y={yb - borda}:enable='not(between(t,{p0:.2f},{p1 + 0.6:.2f}))'[v1];"
-        f"[v1][cp]overlay=x={(W - bp[0]) // 2}:y={yb}:enable='not(between(t,{p0:.2f},{p1 + 0.6:.2f}))'[v2];"
-        f"[v2][5:v]overlay=x={(W - bg[0]) // 2 - borda}:y={yb - borda}:enable='between(t,{p0:.2f},{p1 + 0.6:.2f})'[v3];"
-        f"[v3][cgb]overlay=x={(W - bg[0]) // 2}:y={yb}:enable='between(t,{p0:.2f},{p1 + 0.6:.2f})'[base]"
+        f"[game][4:v]overlay=x={xb - borda}:y={yb - borda}:enable='not(between(t,{p0:.2f},{p1 + 0.6:.2f}))'[v1];"
+        f"[v1][cp]overlay=x={xb}:y={yb}:enable='not(between(t,{p0:.2f},{p1 + 0.6:.2f}))'[v2];"
+        f"[v2][5:v]overlay=x={xb - borda}:y={yb - borda}:enable='between(t,{p0:.2f},{p1 + 0.6:.2f})'[v3];"
+        f"[v3][cgb]overlay=x={xb}:y={yb}:enable='between(t,{p0:.2f},{p1 + 0.6:.2f})'[base]"
     )
     run(["ffmpeg", "-y", "-v", "error", "-i", str(tmp / "cut.mkv"),
          "-loop", "1", "-i", str(tmp / "mask_p.png"), "-loop", "1", "-i", str(tmp / "mask_p.png"),

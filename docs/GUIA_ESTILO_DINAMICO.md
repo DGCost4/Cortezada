@@ -17,8 +17,8 @@ Pastas (equivalentes às do tutorial): `entrada/` = vídeos brutos · `referenci
 1. **Tela cheia de gameplay** (9:16, centro do jogo). Nada de tela dividida.
 2. **Jump cuts**: pausas > 0,55 s sem fala e sem som alto são removidas → ritmo acelerado (um corte de 26 s vira ~20 s).
 3. **Zoom alternado** a cada jump cut (1.00 → 1.12 → 1.05 → 1.18): cada corte "pula" e prende o olho.
-4. **Pico**: punch-in 1.32x + tremida de 0,5 s + **bolha da câmera cresce** (520 → 820 px) para mostrar a reação.
-5. **Câmera do streamer**: bolha com cantos arredondados e **borda roxa #B44CFF**, no topo central.
+4. **Pico**: punch-in 1.32x + tremida de 0,5 s + **bolha da câmera cresce** (440 → 760 px, a partir do canto) para mostrar a reação.
+5. **Câmera do streamer**: bolha com cantos arredondados e **borda roxa #B44CFF**, no **canto superior esquerdo**.
 6. **Card de gancho** (0–2,4 s): título em bloco roxo, entra com pop e sai subindo.
 7. **Legendas**: 1–3 palavras, minúsculas, Open Sans ExtraBold branca com contorno preto, centro da tela;
    palavras/expressões de hype em **roxo e maiores**; cada palavra entra com pop.

@@ -1,0 +1,16 @@
+entrada/
+trabalho/
+saida/
+credenciais/
+*.mp4
+*.mkv
+*.webm
+*.mov
+*.wav
+*.zip
+*.rar
+*.7z
+__pycache__/
+.env
+token*.json
+client_secret*.json

@@ -30,6 +30,7 @@ W, H = 1080, 1920
 FG_H = 778            # altura do gameplay no layout "blur"
 FG_Y = 520            # posição vertical do gameplay
 FONTE = "Roboto Black"
+TOPO_H = 760          # altura da câmera do streamer no layout "dividido"
 
 
 def ts(t: float) -> str:
@@ -56,7 +57,7 @@ def quebrar_titulo(t: str, max_linha=18) -> str:
 
 def gerar_ass(corte, palavras, marca, layout) -> str:
     dur = corte["fim"] - corte["inicio"]
-    leg_y = FG_Y + FG_H + 230 if layout == "blur" else 1350
+    leg_y = {"blur": FG_Y + FG_H + 230, "dividido": TOPO_H}.get(layout, 1350)
     cab = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: {W}
@@ -76,12 +77,15 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     ev = []
     titulo = quebrar_titulo(esc(corte.get("titulo", "")))
     if titulo:
-        # entra com "pop" e fica o vídeo inteiro
-        ev.append(f"Dialogue: 2,{ts(0)},{ts(dur)},Titulo,,0,0,0,,"
+        # entra com "pop"; no layout dividido some após 3 s para não cobrir o rosto do streamer
+        t_fim = min(dur, 3.0) if layout == "dividido" else dur
+        pos_t = r"{\an8\pos(" + f"{W // 2},{TOPO_H + 110}" + ")}" if layout == "dividido" else ""
+        ev.append(f"Dialogue: 2,{ts(0)},{ts(t_fim)},Titulo,,0,0,0,,{pos_t}"
                   r"{\fscx60\fscy60\t(0,180,\fscx108\fscy108)\t(180,300,\fscx100\fscy100)}"
                   r"{\1c&H00FFFFFF&}" + titulo)
     if marca:
-        ev.append(f"Dialogue: 1,{ts(0)},{ts(dur)},Marca,,0,0,0,,{esc(marca)}")
+        pos = r"{\an9\pos(" + f"{W - 30},{TOPO_H + 30}" + ")}" if layout == "dividido" else ""
+        ev.append(f"Dialogue: 1,{ts(0)},{ts(dur)},Marca,,0,0,0,,{pos}{esc(marca)}")
 
     # agrupa palavras em blocos de até 3 palavras / ~16 caracteres
     blocos, atual = [], []
@@ -130,7 +134,7 @@ def palavras_do_corte(transc, ini, fim):
     return out
 
 
-def render(video: Path, corte, transc, destino: Path, layout: str, marca: str, fps: int):
+def render(video: Path, corte, transc, destino: Path, layout: str, marca: str, fps: int, cam=None):
     ini, fim = corte["inicio"], corte["fim"]
     dur = fim - ini
     pk = max(0.0, corte.get("pico", ini + dur / 2) - ini)
@@ -141,7 +145,19 @@ def render(video: Path, corte, transc, destino: Path, layout: str, marca: str, f
                                      encoding="utf-8")
         zoom = (f"zoompan=z='if(between(it,{z0:.2f},{z1:.2f}),min(zoom+0.025,1.18),max(zoom-0.025,1))'"
                 f":d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'")
-        if layout == "cheio":
+        if layout == "dividido":
+            # streamer em cima (recorte da câmera), gameplay embaixo (centro do jogo, sem a câmera)
+            cx, cy, cw, ch = cam
+            base_h = H - TOPO_H
+            ch2 = min(ch, int(cw * TOPO_H / W))           # ajusta proporção da câmera para 1080x760
+            cy2 = cy  # corta só embaixo (preserva o topo da cabeça)
+            filtro = (f"[0:v]fps={fps},split[a][b];"
+                      f"[a]crop={cw}:{ch2}:{cx}:{cy2},scale={W}:{TOPO_H}:flags=lanczos,"
+                      f"unsharp=5:5:0.8,setsar=1[topo];"
+                      f"[b]crop='ih*{W}/{base_h}':ih:'(iw-ih*{W}/{base_h})/2':0,scale={W}:{base_h}:flags=lanczos,"
+                      f"setsar=1,{zoom}:s={W}x{base_h}:fps={fps}[jogo];"
+                      f"[topo][jogo]vstack,drawbox=x=0:y={TOPO_H - 3}:w={W}:h=6:color=black@0.9:t=fill[base];")
+        elif layout == "cheio":
             fg = (f"[0:v]fps={fps},crop='min(iw,ih*9/16)':ih,scale={W}:{H}:flags=lanczos,setsar=1,"
                   f"{zoom}:s={W}x{H}:fps={fps}[base]")
             filtro = fg + ";"
@@ -177,7 +193,8 @@ def main():
     ap = argparse.ArgumentParser(description="Renderiza cortes verticais editados.")
     ap.add_argument("cortes_json")
     ap.add_argument("--ids", nargs="*", help="só esses cortes (ex.: c01 c04)")
-    ap.add_argument("--layout", choices=["blur", "cheio"], default="blur")
+    ap.add_argument("--layout", choices=["blur", "cheio", "dividido"], default="blur")
+    ap.add_argument("--cam", help="layout dividido: posição da câmera do streamer no vídeo original, x:y:largura:altura (px)")
     ap.add_argument("--marca", default="", help='texto da marca d\'água, ex.: "@MeuCanalDeCortes"')
     ap.add_argument("--fps", type=int, default=30)
     a = ap.parse_args()
@@ -195,7 +212,10 @@ def main():
     for c in cortes:
         dest = pasta / f"{c['id']}.mp4"
         print(f"\n>> Renderizando {c['id']} ({c['fim'] - c['inicio']:.0f}s): {c.get('titulo', '')}", flush=True)
-        render(video, c, transc, dest, a.layout, a.marca, a.fps)
+        cam = tuple(int(v) for v in a.cam.split(":")) if a.cam else None
+        if a.layout == "dividido" and not cam:
+            sys.exit("Layout dividido precisa de --cam x:y:largura:altura")
+        render(video, c, transc, dest, a.layout, a.marca, a.fps, cam)
         metadados(c, cj.parent.name, pasta / f"{c['id']}.txt")
         print(f"   ok -> {dest}")
     print(f"\nPronto: {len(cortes)} cortes em {pasta}")

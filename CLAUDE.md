@@ -1,5 +1,8 @@
 # Canal Dark de Cortes de Lives (GTA 6 e jogos em geral)
 
+**Canal: CORTIZADAS — @Cortez4d4** (YouTube e TikTok). Logo e banner em `assets/marca/`.
+Google Drive: pasta "Cortes Lives" (id 1v1-8naJff6-OJbZSRbw-Y86B9Gv6hqQ5) — 01 Lives brutas: 1HySprA6h87F55scJgRqz6ZAed5YpCS0m · 02 Análises: 1J1y1llWTldUaHHn7KKXM3oAWDGPjkvBh · 03 Cortes prontos: 1ZwRhetLyQj2mrG589ArunnmDRqYouuv0 · 04 Publicados: 1mxt7bNd3eCwPKeOej8KN15nsvwU96DEq
+
 **Idioma: responda SEMPRE em português do Brasil.**
 
 ## O que este projeto faz
@@ -18,13 +21,13 @@ e entrega cortes prontos para YouTube Shorts / TikTok / Reels, com título e des
    - reescrever `titulo` (texto que aparece no topo do vídeo): curto (≤ 40 caracteres), em CAIXA ALTA, curiosidade/emoção, sem spoiler do final. Ex.: "ELE NÃO ESPERAVA ISSO...", "A POLÍCIA FICOU SEM ENTENDER".
    - corrigir palavras erradas da transcrição que vão aparecer na legenda.
    - procurar também momentos que o algoritmo não pegou (piada, plot twist, bug engraçado, rage) e adicionar.
-4. **Renderizar**: `python3 scripts/editar.py trabalho/<nome>/cortes.json --marca "@CANAL"` (layout `blur` padrão; `--layout cheio` para gameplay em tela cheia).
+4. **Renderizar**: `python3 scripts/editar.py trabalho/<nome>/cortes.json --marca "@Cortez4d4"` (layout `blur` padrão; `--layout cheio` para gameplay em tela cheia).
 5. **Revisar** frames do vídeo final (ffmpeg -ss X -frames:v 1) antes de entregar.
 6. **Metadados**: reescrever `saida/<nome>/<id>.txt` com título de publicação (≤ 70 caracteres + #shorts), descrição com crédito ao streamer e 3–5 hashtags.
 7. **Salvar na nuvem**: cortes prontos -> Google Drive "Cortes Lives/03 - Cortes prontos/<nome da live>"; código -> commit + push no GitHub.
 8. **Publicar**: YouTube via `scripts/upload_youtube.py` (no PC do usuário) ou manual; TikTok manual (app/TikTok Studio).
 
-Atalho para tudo de uma vez: `bash scripts/processar.sh entrada/live.zip --marca "@CANAL"`.
+Atalho para tudo de uma vez: `bash scripts/processar.sh entrada/live.zip --marca "@Cortez4d4"`.
 
 ## Critérios de viralização (framework CLIP)
 - **C – Cortar no momento**: o score do algoritmo é uma *dica*, não um veredito. ~70% dos cortes automáticos precisam de ajuste humano.
